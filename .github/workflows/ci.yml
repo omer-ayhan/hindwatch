@@ -51,7 +51,8 @@ jobs:
 
   # On main, once the tests pass: semantic-release reads the conventional commits since the last
   # tag, picks the version, publishes to npm, tags it and writes the GitHub release notes.
-  # Provenance needs a public source, so nothing is published while the repo is private.
+  # npm trusts this workflow through OIDC (trusted publishing), so no npm token exists anywhere,
+  # and it adds provenance, which needs a public source: nothing is published while the repo is private.
   release:
     needs: test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' && !github.event.repository.private
@@ -73,10 +74,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          registry-url: https://registry.npmjs.org
       - run: npm ci
       - run: npx --yes -p semantic-release@25.0.9 -p conventional-changelog-conventionalcommits@10.4.1 semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
