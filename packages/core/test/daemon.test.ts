@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { access, chmod, mkdir, mkdtemp, readFile, realpath, rm, stat, symlink, writeFile } from "node:fs/promises";
+import { access, chmod, mkdir, mkdtemp, readFile, realpath, rename, rm, stat, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, dirname, join } from "node:path";
 import { after } from "node:test";
@@ -379,6 +379,11 @@ test("a daemon crash after the log rotated is written to the current log, and st
   const root = await project();
   const paths = daemonPaths(root);
   const trigger = join(root, "trigger");
+  // Renamed into place whole: the crasher polls, and would read a file still being written as empty.
+  const pull = async (how: string) => {
+    await writeFile(`${trigger}.next`, how);
+    await rename(`${trigger}.next`, trigger);
+  };
   await writeFile(join(root, "crasher.js"), CRASHER);
   await writeFile(join(root, CONFIG_FILE), JSON.stringify({ plugins: [{ module: "./crasher.js", options: { trigger } }] }));
   // Just under the cap, so the start keeps it and the daemon's first line rotates it.
@@ -389,14 +394,14 @@ test("a daemon crash after the log rotated is written to the current log, and st
   const { status: first } = await ensureDaemon(root);
   assert.equal(await readFile(`${paths.log}.1`, "utf8"), filler);
   assert.equal(await readFile(paths.stderr, "utf8"), "");
-  await writeFile(trigger, "throw");
+  await pull("throw");
   await waitForExit(first.pid);
   assert.match(await readFile(paths.log, "utf8"), /uncaughtException: Error: thrown on trigger\n\s+at /);
   assert.equal(await readFile(`${paths.log}.1`, "utf8"), filler);
 
   await rm(trigger);
   const { status: second } = await ensureDaemon(root);
-  await writeFile(trigger, "reject");
+  await pull("reject");
   await waitForExit(second.pid);
   assert.match(await readFile(paths.log, "utf8"), /unhandledRejection: Error: rejected on trigger\n\s+at /);
   assert.equal(await readFile(paths.stderr, "utf8"), "");
