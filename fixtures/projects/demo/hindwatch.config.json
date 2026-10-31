@@ -1,0 +1,9 @@
+{
+  "plugins": [
+    {
+      "module": "../../../packages/plugin-fixture/src/index.ts",
+      "options": { "file": "../../forced-crash.jsonl", "clockSkewMs": { "android-a": 0 } }
+    },
+    { "module": "../../../examples/crash-detector/index.js" }
+  ]
+}

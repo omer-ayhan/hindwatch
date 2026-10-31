@@ -1,0 +1,26 @@
+{
+  "stack": [
+    {
+      "methodName": "onPress",
+      "file": "/Users/dev/fixture-app/src/screens/Profile.tsx",
+      "lineNumber": 42,
+      "column": 19,
+      "collapse": false
+    },
+    {
+      "methodName": "<anonymous>",
+      "file": "/Users/dev/fixture-app/node_modules/react-native/Libraries/Pressability/Pressability.js",
+      "lineNumber": 610,
+      "column": 12,
+      "collapse": true
+    }
+  ],
+  "codeFrame": {
+    "content": "  40 | const apiKey = \"sk_live_9f8e7d6c5b4a\";\n  41 | export function onPress(user) {\n> 42 |   return user.profile.name;\n     |                   ^",
+    "location": {
+      "row": 42,
+      "column": 19
+    },
+    "fileName": "/Users/dev/fixture-app/src/screens/Profile.tsx"
+  }
+}

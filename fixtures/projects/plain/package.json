@@ -1,0 +1,6 @@
+{
+  "name": "plain-fixture",
+  "private": true,
+  "description": "mentions react-native and expo, but depends on neither",
+  "dependencies": { "react": "19.1.0" }
+}

@@ -1,0 +1,12 @@
+#!/bin/sh
+# Stands in for `xcrun simctl spawn <udid> log stream`. Appends "pid supervisor-pid" per start to
+# $FAKE_XCRUN_PIDS, then streams as $FAKE_XCRUN_MODE says: busy, idle, or exit-once.
+[ "$2" = spawn ] || exit 1
+echo "$$ $PPID" >> "$FAKE_XCRUN_PIDS"
+starts=$(wc -l < "$FAKE_XCRUN_PIDS" | tr -d ' ')
+line() { printf '{"eventType":"logEvent","messageType":"Default","eventMessage":"%s","processID":42,"timestamp":"%s"}\n' "$1" "$(date '+%Y-%m-%d %H:%M:%S.000000%z')"; }
+case "$FAKE_XCRUN_MODE" in
+  busy) while :; do line "tick"; sleep 0.05; done ;;
+  idle) line "attached"; exec sleep 3600 ;;
+  exit-once) line "start $starts"; [ "$starts" -gt 1 ] && exec sleep 3600; echo "simulator went away" >&2; exit 1 ;;
+esac

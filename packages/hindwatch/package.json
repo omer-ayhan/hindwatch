@@ -1,0 +1,25 @@
+{
+  "name": "hindwatch",
+  "version": "0.0.0-development",
+  "description": "One timeline of Android, iOS simulator and React Native logs for coding agents, over a CLI and MCP.",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "git+https://github.com/omer-ayhan/hindwatch.git", "directory": "packages/hindwatch" },
+  "homepage": "https://github.com/omer-ayhan/hindwatch#readme",
+  "bugs": { "url": "https://github.com/omer-ayhan/hindwatch/issues" },
+  "keywords": ["mcp", "react-native", "expo", "metro", "logcat", "ios-simulator", "iphone", "logs", "debugging", "coding-agents"],
+  "type": "module",
+  "bin": { "hindwatch": "dist/core/src/cli.js" },
+  "exports": {
+    ".": { "types": "./dist/core/src/plugin-api.d.ts", "default": "./dist/core/src/plugin-api.js" }
+  },
+  "files": ["dist/core/src/", "dist/plugin-react-native/src/"],
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "build": "tsx ../../scripts/build-bundle.ts",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "2.4.0",
+    "zod": "4.6.7"
+  }
+}

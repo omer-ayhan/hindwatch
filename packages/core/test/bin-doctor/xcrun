@@ -1,0 +1,12 @@
+#!/bin/sh
+# Stands in for xcrun for doctor: logs every call to $DOCTOR_LOG, lists one booted simulator and names a devicectl version.
+echo "xcrun $*" >> "$DOCTOR_LOG"
+# DOCTOR_HANG_PIDS: hang with a child of our own, writing both pids there, as a stuck simctl would.
+if [ -n "$DOCTOR_HANG_PIDS" ]; then
+  sleep 300 &
+  echo "$$ $!" > "$DOCTOR_HANG_PIDS"
+  wait
+fi
+if [ "$1 $2" = "devicectl --version" ]; then echo 651.13.5; exit 0; fi
+[ "$1 $2" = "simctl list" ] || exit 1
+echo '{"devices":{"com.apple.CoreSimulator.SimRuntime.iOS-26-0":[{"name":"Fake iPhone","udid":"FAKE-UDID","state":"Booted"}]}}'

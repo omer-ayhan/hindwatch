@@ -1,0 +1,26 @@
+[
+  {
+    "id": "5f3c2a9e8b7d6c5b4a39281706f5e4d3c2b1a090-1",
+    "title": "com.hindwatch.fixture (iPhone 17 Pro)",
+    "description": "React Native Bridgeless [C++ connection]",
+    "appId": "com.hindwatch.fixture",
+    "type": "node",
+    "devtoolsFrontendUrl": "/debugger-frontend/rn_fusebox.html?ws=localhost%3A8081%2Finspector%2Fdebug%3Fdevice%3D5f3c2a9e8b7d6c5b4a39281706f5e4d3c2b1a090%26page%3D1",
+    "webSocketDebuggerUrl": "ws://localhost:8081/inspector/debug?device=5f3c2a9e8b7d6c5b4a39281706f5e4d3c2b1a090&page=1",
+    "deviceName": "iPhone 17 Pro",
+    "reactNative": {
+      "logicalDeviceId": "5f3c2a9e8b7d6c5b4a39281706f5e4d3c2b1a090",
+      "capabilities": {
+        "supportsMultipleDebuggers": true,
+        "nativeSourceCodeFetching": false,
+        "nativePageReloads": true
+      }
+    }
+  },
+  {
+    "id": "legacy-0",
+    "title": "Hermes React Native",
+    "description": "no debugger socket",
+    "type": "node"
+  }
+]

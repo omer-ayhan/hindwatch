@@ -1,0 +1,13 @@
+#!/bin/sh
+# Stands in for adb with one device running an app that has gone quiet: pid 4242, one logcat line,
+# then nothing. Appends each `shell pidof` to $FAKE_ADB_CALLS. Stays a shell while it streams so
+# it shows up as `adb ... logcat` in ps.
+[ "$1" = -s ] && shift 2
+case "$1 $2" in
+  "devices "*) printf 'List of devices attached\nPERF-SERIAL\tdevice\n' ;;
+  "get-serialno "*) echo PERF-SERIAL ;;
+  "shell pidof") echo "pidof $(date +%s)" >> "$FAKE_ADB_CALLS"; echo 4242 ;;
+  "shell date") echo "$(date +%s)" ;;
+  "logcat "*) echo "$(date +%s).000  4242  4242 I PerfApp: attached"; while :; do sleep 3600; done ;;
+  *) exit 1 ;;
+esac

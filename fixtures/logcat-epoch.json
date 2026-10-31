@@ -1,0 +1,83 @@
+[
+  {
+    "sec": 1761226155,
+    "nsec": 100000000,
+    "pid": 1111,
+    "tid": 1111,
+    "priority": 4,
+    "tag": "ActivityManager",
+    "msg": "Start proc 1111:com.hindwatch.fixture/u0a190 for activity"
+  },
+  {
+    "sec": 1761226155,
+    "nsec": 180000000,
+    "pid": 1111,
+    "tid": 1135,
+    "priority": 3,
+    "tag": "ReactNativeJS",
+    "msg": "Running \"main\" with {\"rootTag\":1}"
+  },
+  {
+    "sec": 1761226155,
+    "nsec": 180000000,
+    "pid": 1111,
+    "tid": 1135,
+    "priority": 2,
+    "tag": "FixtureNet",
+    "msg": "GET /api/profile"
+  },
+  {
+    "sec": 1761226155,
+    "nsec": 420000000,
+    "pid": 1111,
+    "tid": 1135,
+    "priority": 5,
+    "tag": "FixtureNet",
+    "msg": "slow response, Authorization: Bearer sk-live-4f9a8b7c6d5e"
+  },
+  {
+    "sec": 1761226155,
+    "nsec": 977000000,
+    "pid": 1111,
+    "tid": 1135,
+    "priority": 6,
+    "tag": "AndroidRuntime",
+    "msg": "FATAL EXCEPTION: main\nProcess: com.hindwatch.fixture, PID: 1111\njava.lang.IllegalStateException: fixture crash\n\tat com.hindwatch.fixture.MainActivity.onCreate(MainActivity.kt:42)"
+  },
+  {
+    "sec": 1761226155,
+    "nsec": 978000000,
+    "pid": 1111,
+    "tid": 1135,
+    "priority": 7,
+    "tag": "libc",
+    "msg": "Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 1135"
+  },
+  {
+    "sec": 1761226158,
+    "nsec": 2000000,
+    "pid": 2222,
+    "tid": 2222,
+    "priority": 4,
+    "tag": "ActivityManager",
+    "msg": "Start proc 2222:com.hindwatch.fixture/u0a190 for activity"
+  },
+  {
+    "sec": 1761226158,
+    "nsec": 30000000,
+    "pid": 2222,
+    "tid": 2240,
+    "priority": 4,
+    "tag": "ReactNativeJS",
+    "msg": "Running \"main\" with {\"rootTag\":11}"
+  },
+  {
+    "sec": 1761226158,
+    "nsec": 31000000,
+    "pid": 2222,
+    "tid": 2240,
+    "priority": 6,
+    "tag": "FixtureNet",
+    "msg": ""
+  }
+]

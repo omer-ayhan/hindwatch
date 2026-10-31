@@ -1,0 +1,8 @@
+{"deviceId":"android-a","level":"info","msg":"step 2","deviceTs":1700000005200}
+{"deviceId":"android-a","level":"info","msg":"step 4","deviceTs":1700000005400}
+{"deviceId":"ios-b","level":"info","msg":"step 1","deviceTs":1699999997100}
+{"deviceId":"ios-b","level":"warn","msg":"step 3","deviceTs":1699999997300}
+{"deviceId":"android-a","level":"error","msg":"step 6","deviceTs":1700000005600}
+{"deviceId":"ios-b","level":"info","msg":"step 5","deviceTs":1699999997500}
+{"deviceId":"android-a","level":"info","msg":"no device time"}
+{"deviceId":"web-c","level":"info","msg":"no clock sample","deviceTs":1700000000700}

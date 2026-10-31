@@ -1,0 +1,9 @@
+{
+  "name": "@hindwatch/plugin-react-native",
+  "version": "0.0.2",
+  "private": true,
+  "type": "module",
+  "description": "React Native and Expo: JS logs and exceptions over Metro's inspector (CDP), symbolicated stacks, redbox and unhandled-rejection incidents.",
+  "exports": { ".": "./src/index.ts" },
+  "dependencies": { "@hindwatch/core": "0.0.2" }
+}

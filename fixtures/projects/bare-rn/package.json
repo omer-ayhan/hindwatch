@@ -1,0 +1,12 @@
+{
+  "name": "bare-rn-fixture",
+  "private": true,
+  "scripts": { "start": "react-native start" },
+  "dependencies": {
+    "react": "19.1.0",
+    "react-native": "0.81.4"
+  },
+  "devDependencies": {
+    "@react-native/metro-config": "0.81.4"
+  }
+}

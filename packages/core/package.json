@@ -1,0 +1,14 @@
+{
+  "name": "@hindwatch/core",
+  "version": "0.0.2",
+  "private": true,
+  "type": "module",
+  "description": "Hindwatch core: event schema, capture daemon, clock normalization, redaction and query engine.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "2.4.0",
+    "zod": "4.6.7"
+  }
+}

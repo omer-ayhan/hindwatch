@@ -1,0 +1,9 @@
+{
+  "name": "@hindwatch/plugin-fixture",
+  "version": "0.0.2",
+  "private": true,
+  "type": "module",
+  "description": "Replays recorded JSONL logs with simulated device clock skew. Used by tests and CI.",
+  "exports": { ".": "./src/index.ts" },
+  "dependencies": { "@hindwatch/core": "0.0.2" }
+}

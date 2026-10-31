@@ -1,0 +1,6 @@
+#!/bin/sh
+# Stands in for adb for doctor: logs every call to $DOCTOR_LOG and answers only `adb version`.
+echo "adb $*" >> "$DOCTOR_LOG"
+[ "$1" = version ] || exit 1
+echo "Android Debug Bridge version 1.0.41"
+echo "Version 36.0.0-fake"

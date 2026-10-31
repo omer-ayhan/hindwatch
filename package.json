@@ -1,0 +1,22 @@
+{
+  "name": "hindwatch-monorepo",
+  "private": true,
+  "type": "module",
+  "workspaces": ["packages/*"],
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "prepare": "npm run build -w hindwatch",
+    "typecheck": "tsc --noEmit",
+    "pretest": "npm run build -w hindwatch",
+    "test": "tsx scripts/no-leftovers.ts sh -c 'node --import tsx --test --test-force-exit \"packages/*/test/*.test.ts\" && node --import tsx --test --test-force-exit --test-concurrency=1 \"packages/*/test/serial/*.test.ts\"'",
+    "hindwatch": "tsx packages/core/src/cli.ts",
+    "smoke:live": "tsx scripts/no-leftovers.ts tsx scripts/smoke-live.ts",
+    "smoke:pack": "tsx scripts/no-leftovers.ts tsx scripts/smoke-pack.ts",
+    "perf": "tsx scripts/no-leftovers.ts tsx scripts/perf.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}

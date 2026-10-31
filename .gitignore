@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.log
+.DS_Store
+packages/hindwatch/LICENSE
+feedback.md
+PLAN.md
+packages/hindwatch/README.md
