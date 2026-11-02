@@ -3,6 +3,7 @@ import { spawn } from "node:child_process";
 import { lstat, readFile, stat, symlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { PassThrough, Writable } from "node:stream";
+import { setTimeout as delay } from "node:timers/promises";
 import { after } from "node:test";
 import { Clocks, compactQueryPage, EventBuffer, INVALID_PATH, Ingest, Redactor, streamExport, type DebugEvent } from "@hindwatch/core";
 import { CLI, discardProject, eventually, feedApp, runCli } from "./helpers.js";
@@ -144,7 +145,8 @@ test("done when: an export reports a gap after eviction, as its first line and a
   const held = async () => JSON.parse((await runCli(root, ["status"])).stdout).events;
   await append(...Array.from({ length: 5 }, (_, i) => ({ msg: `line ${i + 1}` })));
   await eventually(async () => (await held()) === 5, "the lines to arrive");
-  await eventually(async () => (await held()) === 0, "the lines to expire", 10_000);
+  await delay(2_500);
+  assert.equal(await held(), 5, "a quiet app keeps its last span");
   await append(...Array.from({ length: 3 }, (_, i) => ({ msg: `line ${i + 6}` })));
   await eventually(async () => (await held()) === 3, "the new lines to arrive");
   const out = join(root, "all.jsonl");

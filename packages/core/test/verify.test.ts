@@ -335,7 +335,7 @@ test("expect, like any call, fails with 'daemon exited' when the connection clos
 });
 
 test("expect window fromTs/toTs bound every searched row across skewed clocks", () => {
-  const buffer = new EventBuffer({ maxEvents: 100, maxEventsPerSource: 100, maxAgeMs: 3_600_000 }, () => 10_000);
+  const buffer = new EventBuffer({ maxEvents: 100, maxEventsPerSource: 100, maxAgeMs: 3_600_000 });
   const base = {
     schemaVersion: SCHEMA_VERSION,
     deviceTs: null as null,
