@@ -20,32 +20,39 @@ const event = (id: number, hostTs: number, source = "s"): DebugEvent => ({
 });
 
 test("keeps at most maxEvents, dropping the oldest", () => {
-  const buffer = new EventBuffer({ maxEvents: 3, maxEventsPerSource: 3, maxAgeMs: 1e9 }, () => 0);
+  const buffer = new EventBuffer({ maxEvents: 3, maxEventsPerSource: 3, maxAgeMs: 1e9 });
   for (let id = 1; id <= 5000; id++) buffer.push(event(id, 0));
   assert.deepEqual(buffer.snapshot().map((e) => e.id), [4998, 4999, 5000]);
   assert.equal(buffer.dropped, 4997);
 });
 
 test("remembers every source it was pushed, even once eviction removed them all", () => {
-  const buffer = new EventBuffer({ maxEvents: 1, maxEventsPerSource: 1, maxAgeMs: 1e9 }, () => 0);
+  const buffer = new EventBuffer({ maxEvents: 1, maxEventsPerSource: 1, maxAgeMs: 1e9 });
   buffer.push(event(1, 1, "first"));
   buffer.push(event(2, 2, "second"));
   assert.equal(buffer.countFor("first"), 0);
   assert.deepEqual([...buffer.seenSources], ["first", "second"]);
 });
 
-test("drops events older than maxAgeMs", () => {
-  let now = 1_000;
-  const buffer = new EventBuffer({ maxEvents: 100, maxEventsPerSource: 100, maxAgeMs: 500 }, () => now);
+test("drops events older than maxAgeMs before the newest event", () => {
+  const buffer = new EventBuffer({ maxEvents: 100, maxEventsPerSource: 100, maxAgeMs: 500 });
   buffer.push(event(1, 600));
   buffer.push(event(2, 900));
-  now = 1_200;
-  assert.deepEqual(buffer.snapshot().map((e) => e.id), [2]);
+  buffer.push(event(3, 1_200));
+  assert.deepEqual(buffer.snapshot().map((e) => e.id), [2, 3]);
   assert.equal(buffer.dropped, 0, "expiring by age is not overflow");
 });
 
+test("keeps the last span while nothing new arrives, however long ago it was", () => {
+  const buffer = new EventBuffer({ maxEvents: 100, maxEventsPerSource: 100, maxAgeMs: 500 });
+  buffer.push(event(1, 600));
+  buffer.push(event(2, 900));
+  assert.deepEqual(buffer.snapshot().map((e) => e.id), [1, 2]);
+  assert.equal(buffer.evicted, undefined);
+});
+
 test("reads a slice after an id without copying the buffer, and says how far eviction reached", () => {
-  const buffer = new EventBuffer({ maxEvents: 5, maxEventsPerSource: 5, maxAgeMs: 1e9 }, () => 0);
+  const buffer = new EventBuffer({ maxEvents: 5, maxEventsPerSource: 5, maxAgeMs: 1e9 });
   assert.equal(buffer.lastId, 0);
   assert.equal(buffer.evicted, undefined);
   for (let id = 1; id <= 8; id++) buffer.push({ ...event(id, 0), ts: id * 10 });
@@ -57,7 +64,7 @@ test("reads a slice after an id without copying the buffer, and says how far evi
 });
 
 test("listeners hear every push until they unsubscribe", () => {
-  const buffer = new EventBuffer({ maxEvents: 5, maxEventsPerSource: 5, maxAgeMs: 1e9 }, () => 0);
+  const buffer = new EventBuffer({ maxEvents: 5, maxEventsPerSource: 5, maxAgeMs: 1e9 });
   let heard = 0;
   const off = buffer.onPush(() => heard++);
   buffer.push(event(1, 0));
@@ -68,7 +75,7 @@ test("listeners hear every push until they unsubscribe", () => {
 });
 
 test("exposes maxAgeMs and the oldest held event", () => {
-  const buffer = new EventBuffer({ maxEvents: 3, maxEventsPerSource: 3, maxAgeMs: 1_000 }, () => 0);
+  const buffer = new EventBuffer({ maxEvents: 3, maxEventsPerSource: 3, maxAgeMs: 1_000 });
   assert.equal(buffer.maxAgeMs, 1_000);
   assert.equal(buffer.oldest, undefined);
   buffer.push(event(1, 0));
@@ -80,7 +87,7 @@ test("exposes maxAgeMs and the oldest held event", () => {
 });
 
 test("oldest is the earliest timeline ts among held events, not the arrival head", () => {
-  const buffer = new EventBuffer({ maxEvents: 100, maxEventsPerSource: 100, maxAgeMs: 1e9 }, () => 10_000);
+  const buffer = new EventBuffer({ maxEvents: 100, maxEventsPerSource: 100, maxAgeMs: 1e9 });
   buffer.push(event(1, 9_900));
   buffer.push({ ...event(2, 9_950), ts: 100 });
   buffer.push({ ...event(3, 9_960), ts: 200 });
@@ -90,7 +97,7 @@ test("oldest is the earliest timeline ts among held events, not the arrival head
 });
 
 test("soft per-source: alone may exceed share until global fills; under pressure over-share yields", () => {
-  const buffer = new EventBuffer({ maxEvents: 10, maxEventsPerSource: 4, maxAgeMs: 1e9 }, () => 0);
+  const buffer = new EventBuffer({ maxEvents: 10, maxEventsPerSource: 4, maxAgeMs: 1e9 });
   for (let id = 1; id <= 8; id++) buffer.push(event(id, 0, "ios-sim"));
   assert.equal(buffer.countFor("ios-sim"), 8, "under capacity, sim may exceed its 4-share");
   for (let id = 9; id <= 20; id++) buffer.push(event(id, 0, "ios-sim"));
@@ -106,7 +113,7 @@ test("soft per-source: alone may exceed share until global fills; under pressure
 });
 
 test("alone, a source may fill all of maxEvents", () => {
-  const buffer = new EventBuffer({ maxEvents: 10, maxAgeMs: 1e9 }, () => 0);
+  const buffer = new EventBuffer({ maxEvents: 10, maxAgeMs: 1e9 });
   for (let id = 1; id <= 20; id++) buffer.push(event(id, 0, "ios-sim"));
   assert.equal(buffer.size, 10, "alone fills global max, not the soft half");
   assert.equal(buffer.countFor("ios-sim"), 10);

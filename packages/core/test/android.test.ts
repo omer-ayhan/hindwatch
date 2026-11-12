@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { androidSource, type DebugEvent, isAnrReport, nextPollMs, parseConfig, parseDeviceDate, parseLogcatEntries, type ProcessRunner } from "@hindwatch/core";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { androidSource, type DebugEvent, isAnrReport, nextPollMs, parseConfig, parseDeviceDate, parseLogcatEntries, type ProcessRunner, supervisedRunner } from "@hindwatch/core";
 import { aborted, ANR_LOG, JAVA_CRASH_LOG, LOGCAT_LOG, logcatFrame, type LogcatRecord, pipeline, until } from "./helpers.js";
 import { test } from "./timed.js";
 
@@ -467,6 +471,29 @@ test("an attached app with an unchanged pid is checked less and less often", asy
   await host.stopAll();
   // At a fixed 5 ms that would be about 100 checks; doubling from 5 ms it is at most 8.
   assert.ok(pidofCalls.count <= 10, `${pidofCalls.count} pidof calls`);
+});
+
+test("the perf run's fake adb answers the source's own calls, so its quiet app is checked less and less often", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "hindwatch-fake-adb-"));
+  process.env.FAKE_ADB_CALLS = join(dir, "calls");
+  const logs: string[] = [];
+  const { host, buffer } = pipeline((message) => logs.push(message));
+  const adb = fileURLToPath(new URL("./bin/adb", import.meta.url));
+  const source = androidSource(androidConfig({ package: "com.hindwatch.perf" })!, { runner: supervisedRunner(), adb, pollMs: 20, maxPollMs: 60_000 });
+  host.add({ name: "builtin", apiVersion: "0.1", sources: [source] });
+  await host.startAll();
+  try {
+    await until(() => buffer.snapshot().some((e) => e.pid === 4242 && e.msg === "attached"), "the fake app's entry", 5_000);
+    await new Promise((resolve) => setTimeout(resolve, 1_000));
+  } finally {
+    await host.stopAll();
+    delete process.env.FAKE_ADB_CALLS;
+  }
+  const pidofs = (await readFile(join(dir, "calls"), "utf8")).split("\n").filter(Boolean).length;
+  await rm(dir, { recursive: true, force: true });
+  assert.deepEqual(logs.filter((log) => log.includes("failed")), []);
+  // At a fixed 20 ms that would be about 50 checks; doubling from 20 ms it is at most 7.
+  assert.ok(pidofs <= 10, `${pidofs} pidof calls`);
 });
 
 test("the clock is re-measured every 60s by default, and on the configured interval", async (t) => {

@@ -17,23 +17,25 @@ export interface EvictedUpTo {
   readonly ts: number;
 }
 
-/** In-memory rolling buffer in arrival order. Never written to disk. */
+/**
+ * In-memory rolling buffer in arrival order. Never written to disk. Age is measured back from the
+ * newest event, not the clock, so a quiet device keeps its last maxAgeMs until new logs arrive.
+ */
 export class EventBuffer {
   #events: DebugEvent[] = [];
   #head = 0;
   #dropped = 0;
   #lastId = 0;
+  #newestHostTs = -Infinity;
   #evicted: EvictedUpTo | undefined;
   readonly #bySource = new Map<string, number>();
   readonly #seenSources = new Set<string>();
   readonly #listeners = new Set<() => void>();
   readonly #limits: BufferLimits;
-  readonly #now: () => number;
   readonly #perSource: number;
 
-  constructor(limits: BufferLimits, now: () => number = Date.now) {
+  constructor(limits: BufferLimits) {
     this.#limits = limits;
-    this.#now = now;
     this.#perSource =
       limits.maxEventsPerSource ??
       (limits.maxEvents === undefined ? Infinity : Math.max(1, Math.floor(limits.maxEvents / 2)));
@@ -42,6 +44,7 @@ export class EventBuffer {
   push(event: DebugEvent): void {
     this.#events.push(event);
     this.#lastId = event.id;
+    if (event.hostTs > this.#newestHostTs) this.#newestHostTs = event.hostTs;
     this.#bySource.set(event.source, (this.#bySource.get(event.source) ?? 0) + 1);
     this.#seenSources.add(event.source);
     this.#evict(event.source);
@@ -55,13 +58,11 @@ export class EventBuffer {
   }
 
   snapshot(): readonly DebugEvent[] {
-    this.#evict();
     return this.#events.slice(this.#head);
   }
 
   /** Up to limit events with an id above afterId, in arrival order, without copying the rest. */
   after(afterId: number, limit: number): DebugEvent[] {
-    this.#evict();
     let low = this.#head;
     let high = this.#events.length;
     while (low < high) {
@@ -73,7 +74,6 @@ export class EventBuffer {
   }
 
   get size(): number {
-    this.#evict();
     return this.#events.length - this.#head;
   }
 
@@ -84,7 +84,6 @@ export class EventBuffer {
 
   /** The newest event evicted for any reason, undefined while nothing has been. */
   get evicted(): EvictedUpTo | undefined {
-    this.#evict();
     return this.#evicted;
   }
 
@@ -108,7 +107,6 @@ export class EventBuffer {
    * maxAgeMs; arrival order can leave an older ts behind a fresher banner.
    */
   get oldest(): { readonly id: number; readonly ts: number } | undefined {
-    this.#evict();
     let best: DebugEvent | undefined;
     for (let i = this.#head; i < this.#events.length; i++) {
       const event = this.#events[i]!;
@@ -137,7 +135,6 @@ export class EventBuffer {
 
     /** How many held events came from this source. */
   countFor(source: string): number {
-    this.#evict();
     return this.#bySource.get(source) ?? 0;
   }
 
@@ -177,7 +174,7 @@ export class EventBuffer {
   }
 
   #evict(incomingSource?: string): void {
-    const cutoff = this.#now() - this.#limits.maxAgeMs;
+    const cutoff = this.#newestHostTs - this.#limits.maxAgeMs;
     while (this.#head < this.#events.length) {
       const oldest = this.#events[this.#head]!;
       if (oldest.hostTs >= cutoff) break;

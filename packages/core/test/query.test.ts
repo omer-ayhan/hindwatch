@@ -272,7 +272,7 @@ test("resolveStale folds stale false/true into from/to against startedAt", () =>
 
 test("stale false keeps only events at or after startedAt", () => {
   const now = 1_000_000;
-  const buffer = new EventBuffer({ maxEvents: 100, maxEventsPerSource: 100, maxAgeMs: 1e9 }, () => now);
+  const buffer = new EventBuffer({ maxEvents: 100, maxEventsPerSource: 100, maxAgeMs: 1e9 });
   const base = {
     schemaVersion: SCHEMA_VERSION,
     deviceTs: null as null,
